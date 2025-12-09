@@ -19,7 +19,7 @@ def get_lanczos_weights(dist, a=3):
     return weights
 
 
-def resize_lanczos_vectorized(img, new_height, new_width, a=3):
+def resize_lanczos_vectorized(img, new_height, new_width, a=3, output_dtype=None, preserve_range=False):
     height, width, channels = img.shape
 
     img_padded = np.pad(img, ((a, a), (a, a), (0, 0)), mode='symmetric')
@@ -60,5 +60,10 @@ def resize_lanczos_vectorized(img, new_height, new_width, a=3):
     result_transposed = np.sum(cols_subset * W_cols_exp, axis=0)
 
     result = result_transposed.transpose(1, 0, 2)
+
+    if preserve_range or (output_dtype is not None and output_dtype != np.uint8):
+        if output_dtype is None:
+            output_dtype = np.float32 if np.issubdtype(img.dtype, np.floating) else img.dtype
+        return result.astype(output_dtype)
 
     return np.clip(result, 0, 255).astype(np.uint8)

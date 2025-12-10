@@ -19,7 +19,7 @@ def get_lanczos_weights(dist, a=3):
     return weights
 
 
-def resize_lanczos_vectorized(img, new_height, new_width, a=3, output_dtype=None, preserve_range=False):
+def SR_lanczos(img, new_height, new_width, a=3, output_dtype=None, preserve_range=False):
     height, width, channels = img.shape
 
     img_padded = np.pad(img, ((a, a), (a, a), (0, 0)), mode='symmetric')

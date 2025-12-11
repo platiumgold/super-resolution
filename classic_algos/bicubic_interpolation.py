@@ -16,7 +16,7 @@ def get_bicubic_weights(dist, a=-0.5):
 
     return w
 
-def SR_bicubic(img, new_height, new_width):
+def SR_bicubic(img, new_height, new_width, output_dtype=None, preserve_range=False):
     height, width, channels = img.shape
 
     img_padded = np.pad(img, ((2, 2), (2, 2), (0, 0)), mode='symmetric')
@@ -40,14 +40,13 @@ def SR_bicubic(img, new_height, new_width):
     row_idx = np.stack([row_floor - 1, row_floor, row_floor + 1, row_floor + 2], axis=0)
     col_idx = np.stack([col_floor - 1, col_floor, col_floor + 1, col_floor + 2], axis=0)
 
-    # (4, new_height, W+4, 3) scaled matrix. 256x128x3 but each row now is 4 neighbors rows
+    # (4, new_height, W+4, C) scaled matrix.
     rows_subset = img_padded[row_idx, :, :]
 
-    # W_rows: (4, new_height) (4, new_height, 1, 1
+    # W_rows: (4, new_height) -> (4, new_height, 1, 1)
     W_rows_exp = W_rows[:, :, None, None]
 
-    # squeeze these 4 rows into one with weighted sum
-    # (new_height, W+4, 3)
+    # squeeze these 4 rows into one with weighted sum -> (new_height, W+4, C)
     intermediate = np.sum(rows_subset * W_rows_exp, axis=0)
 
     # transpose matrix and repeat for columns
@@ -57,5 +56,12 @@ def SR_bicubic(img, new_height, new_width):
     result_transposed = np.sum(cols_subset * W_cols_exp, axis=0)
     result = result_transposed.transpose(1, 0, 2)
 
+    #DL
+    if preserve_range or (output_dtype is not None and output_dtype != np.uint8):
+        if output_dtype is None:
+            output_dtype = np.float32 if np.issubdtype(img.dtype, np.floating) else img.dtype
+        return result.astype(output_dtype)
+
+    #standard
     result = np.clip(result, 0, 255).astype(np.uint8)
     return result

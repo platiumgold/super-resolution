@@ -62,6 +62,7 @@ def SR_lanczos(img, new_height, new_width, a=3, output_dtype=None, preserve_rang
     result = result_transposed.transpose(1, 0, 2)
 
     if preserve_range or (output_dtype is not None and output_dtype != np.uint8):
+        result = np.clip(result, 0, 1)
         if output_dtype is None:
             output_dtype = np.float32 if np.issubdtype(img.dtype, np.floating) else img.dtype
         return result.astype(output_dtype)

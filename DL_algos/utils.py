@@ -36,7 +36,7 @@ def loss_psnr_graphic(train_loss, psnr_metric):
     plt.show()
 
 
-def model_to_baseline_compare(model_class, model_path, dataset, mode='rgb', model_args=None, scale=2, zoom_size=144,
+def model_to_baseline_compare(model_class, model_path, dataset, mode, model_args=None, scale=2, zoom_size=144,
                      random_crop=True):
     if model_args is None:
         model_args = {}
@@ -129,10 +129,10 @@ def model_to_baseline_compare(model_class, model_path, dataset, mode='rgb', mode
     la_full, la_crop = get_crops(sr_lanczos_tensor)
 
     fig, axes = plt.subplots(2, 4, figsize=(12, 6))
-    model_name = f"{mode.upper()} {model_class.__name__}"
+    model_name = f"{mode} {model_class.__name__}"
 
     fig.suptitle(
-        f'{mode.upper()} SR: {Path(img_path).name}\nPSNR (full) — {model_name}: {psnr_model:.2f} | Bicubic: {psnr_bicubic:.2f} | Lanczos: {psnr_lanczos:.2f}')
+        f'{mode} SR: {Path(img_path).name}\nPSNR (full) — {model_name}: {psnr_model:.2f} | Bicubic: {psnr_bicubic:.2f} | Lanczos: {psnr_lanczos:.2f}')
 
     imgs_full = [hr_full, sr_full, bi_full, la_full]
     titles = ['Original HR', f'{model_name} (Ours)', 'Bicubic', 'Lanczos']
